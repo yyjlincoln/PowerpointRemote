@@ -90,12 +90,13 @@ def parseData(sx, addr, data):
             operation=op
     
     if operation=='register':
-        _key=secrets.token_hex(32).encode()
+        _key=secrets.token_hex(128).encode()
         key = base64.b64encode(_key).decode()
-        keycollection(rand=json.loads(actdata)['rand'], key=_key).save()
+        identity = secrets.token_hex(16)
+        keycollection(rand=json.loads(actdata)['rand'], key=key).save()
         connection_send(sx,addr,pack.pack_json('success',{
             'message':'Identity created',
-            'identity':secrets.token_hex(32)
+            'identity': identity
         }, encrypted=True, key=_key))
 
 
