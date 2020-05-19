@@ -90,7 +90,7 @@ def parseData(sx, addr, data):
             operation=op
     
     if operation=='register':
-        _key=secrets.token_hex(128).encode()
+        _key=secrets.token_hex(16).encode()
         key = base64.b64encode(_key).decode()
         identity = secrets.token_hex(16)
         keycollection(rand=json.loads(actdata)['rand'], key=key).save()
