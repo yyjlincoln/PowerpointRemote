@@ -7,6 +7,7 @@ import time
 import secrets
 import base64
 from Crypto.Cipher import AES
+import mongoengine
 
 server = ('0.0.0.0', 8085)
 
@@ -85,7 +86,7 @@ def parseData(sx, addr, data):
             operation=op
     
     if operation=='register':
-        keycollection(rand=jsondata['rand'], key=base64.b64encode(secrets.token_hex(32)).decode()).save()
+        keycollection(rand=jsondata['rand'], key=base64.b64encode(secrets.token_hex(32).encode()).decode()).save()
         connection_send(sx, addr, pack.pack('success',{
             operation: 'register'
         }))
@@ -93,4 +94,8 @@ def parseData(sx, addr, data):
 
     print(opcode, ts, identity, token, jsondata, identity)
 
-connection_handler()
+def init():
+    mongoengine.connect('premote')
+    connection_handler()
+
+init()
