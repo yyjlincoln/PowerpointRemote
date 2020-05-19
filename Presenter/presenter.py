@@ -7,19 +7,24 @@ import secrets
 import json
 import threading
 import base64
+import time
 
 
 server = ('mcsrv.icu',8085)
 keyserver = 'keyserver.premote.mcsrv.icu'
 key = ''
+readlock = False
 
 deadConnection = []
 
 def connection_keep_recv(sx, addr):
-    global deadConnection
+    global deadConnection, readlock
     while sx not in deadConnection:
         try:
             data = sx.recv(1024)
+            while readlock:
+                # Wait for the lock
+                pass
             if data == b'':
                 terminate_connection(sx, addr)
                 logger.log('Exit thread', address=addr)
@@ -73,7 +78,7 @@ def parseData(sx,addr,data):
     logger.info(opcode,ts,identity,verif,encrypted,actdata)
 
 def init():
-    global key
+    global key, readlock
 
     logger.info('Initializing...')
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -88,6 +93,7 @@ def init():
     t.setDaemon(True)
     t.start()
 
+    readlock=True
     logger.info('Registering existance...')
     rand = secrets.token_urlsafe(32)
     s.send(pack.pack('register',json.dumps({
@@ -103,6 +109,8 @@ def init():
     if 'key' not in r.json():
         logger.fatal('Failed to obtain key!')
     key = base64.b64decode(r.json()['key'])
+    logger.log(key=key)
+    readlock=False
 
     logger.info('Successfully obtained key!')
 
