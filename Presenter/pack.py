@@ -15,14 +15,14 @@ Operation Code [I] + Timestamp [d] + Client Identity [32s] + hash_verif (first 1
 version = 'init.1'
 
 opcode_mapping = {
-    'register':0x00000000,
-    'heartbeat':0x00000001,
-    'next':0x00000002,
-    'previous':0x00000003,
-    'success':0x00010000,
-    'failed':0x00010001,
-    'warning':0x00010002,
-    'loggedin':0x00010009
+    'register':0x0000,
+    'heartbeat':0x0001,
+    'next':0x0002,
+    'previous':0x0003,
+    'success':0xF000,
+    'failed':0xF001,
+    'warning':0xF002,
+    'loggedin':0xF009
 }
 
 class PackException(Exception):
