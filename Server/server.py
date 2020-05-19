@@ -77,32 +77,36 @@ def connection_send(sx, addr, data):
 
 
 def parseData(sx, addr, data):
-    opcode, ts, identity, token, jsondata = pack.unpack(data)
+    print(pack.unpack(data))
 
-    if time.time()-ts < 0:
-        connection_send(sx, addr, pack.pack('warning', {
-            'message': 'Check clock',
-            'type': '1'
-        }))
-    
-    operation=None
-    for op, code in pack.opcode_mapping.items():
-        if code==opcode:
-            operation=op
-    
-    if operation=='register':
-        key = base64.b64encode(secrets.token_hex(32).encode()).decode()
-        keycollection(rand=jsondata['rand'], key=key).save()
-        connection_send(sx, addr, pack.pack('success',{
-            operation: 'register'
-        }))
-        token = secrets.token_urlsafe(32)
-        session(identity = identity, token=token, key=key)
-        # AES.new(base64.b64decode(key),AES.MODE_CFB).encrypt_and_digest()
-        # connection_send(sx,addr,)
-        return
 
-    print(opcode, ts, identity, token, jsondata, identity)
+
+
+    # if 'encrypted' in actdata:
+
+    # if time.time()-ts < 0:
+    #     connection_send(sx, addr, pack.pack('warning', {
+    #         'message': 'Check clock',
+    #         'type': '1'
+    #     }))
+    
+    # operation=None
+    # for op, code in pack.opcode_mapping.items():
+    #     if code==opcode:
+    #         operation=op
+    
+    # if operation=='register':
+    #     key = base64.b64encode(secrets.token_hex(32).encode()).decode()
+    #     keycollection(rand=actdata['rand'], key=key).save()
+    #     connection_send(sx, addr, pack.pack('success',{
+    #         'operation': 'register',
+    #         'identity':identity
+    #     }))
+    #     token = secrets.token_urlsafe(32)
+    #     session(identity = identity, token=token, key=key)
+    #     return
+
+    # print(opcode, ts, identity, token, actdata, identity)
 
 def init():
     mongoengine.connect('premote')

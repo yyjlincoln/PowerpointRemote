@@ -5,6 +5,7 @@ import pack
 import requests
 from Crypto.Cipher import AES
 import secrets
+import json
 
 server = ('mcsrv.icu',8085)
 keyserver = 'keyserver.premote.mcsrv.icu'
@@ -23,9 +24,9 @@ def init():
 
     logger.info('Registering existance...')
     rand = secrets.token_urlsafe(32)
-    s.send(pack.pack('register',{
+    s.send(pack.pack('register',json.dumps({
         'rand':rand
-    }))
+    }).encode()))
 
     logger.info('Obtaining key for encryption...')
     # Obtain secrect key for encryption, via HTTPS
