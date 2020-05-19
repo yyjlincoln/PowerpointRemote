@@ -4,12 +4,16 @@ from dbconnect import keycollection, session
 import threading
 import socket
 import time
+import secrets
+import base64
+from Crypto.Cipher import AES
 
 server = ('0.0.0.0', 8085)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(server)
 s.listen(10)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 deadConnection = []
 
@@ -74,5 +78,19 @@ def parseData(sx, addr, data):
             'message': 'Check clock',
             'type': '1'
         }))
+    
+    operation=None
+    for op, code in pack.opcode_mapping.items():
+        if code==opcode:
+            operation=op
+    
+    if op=='register':
+        keycollection(rand=jsondata['rand'], key=base64.b64encode(secrets.token_hex(32)).decode()).save()
+        connection_send(sx, addr, pack.pack('success',{
+            operation: 'register'
+        }))
+        return
 
     print(opcode, ts, identity, token, jsondata, identity)
+
+connection_handler()
