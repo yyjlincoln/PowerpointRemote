@@ -91,10 +91,15 @@ def parseData(sx, addr, data):
             operation=op
     
     if operation=='register':
-        keycollection(rand=jsondata['rand'], key=base64.b64encode(secrets.token_hex(32).encode()).decode()).save()
+        key = base64.b64encode(secrets.token_hex(32).encode()).decode()
+        keycollection(rand=jsondata['rand'], key=key).save()
         connection_send(sx, addr, pack.pack('success',{
             operation: 'register'
         }))
+        token = secrets.token_urlsafe(32)
+        session(identity = identity, token=token, key=key)
+        # AES.new(base64.b64decode(key),AES.MODE_CFB).encrypt_and_digest()
+        # connection_send(sx,addr,)
         return
 
     print(opcode, ts, identity, token, jsondata, identity)

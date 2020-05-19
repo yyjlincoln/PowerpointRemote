@@ -38,7 +38,12 @@ def init():
 
     logger.info('Successfully obtained key!')
 
+def encrypt(key):
+    AES.new(key, AES.MODE_CFB)
+
+
 try:
     init()
 except Exception as e:
     logger.fatal('An exception occured:',Exception=e)
+
