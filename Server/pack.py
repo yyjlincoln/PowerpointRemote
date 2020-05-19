@@ -7,14 +7,19 @@ import base64
 '''
 Data structure:
 
-Operation Code [i] + Timestamp [d] + Client Identity [32s] + Token [32s] + hash_verif (first 12 of hash) [12s] + jsondata [?s]
+Operation Code [I] + Timestamp [d] + Client Identity [32s] + Token [32s] + hash_verif (first 12 of hash) [12s] + jsondata [?s]
 '''
 
+version = 'init.0'
+
 opcode_mapping = {
-    'register':0x0000,
-    'heartbeat':0x0001,
-    'next':0x0002,
-    'previous':0x0003
+    'register':0x00000000,
+    'heartbeat':0x00000001,
+    'next':0x00000002,
+    'previous':0x00000003,
+    'success':0x00010000,
+    'failed':0x00010001,
+    'warning':0x00010002
 }
 
 class PackException(Exception):
@@ -39,11 +44,11 @@ def pack(operation, data):
     # Calculate MD5 for verification
     _token = struct.pack('32s', Token.encode('utf-8'))
     verif = hashlib.md5(_token[0:32]+data).digest()[0:12]
-    return struct.pack(f'id32s32s12s{len(data)}s',opcode_mapping[operation], float(time.time()), Identity.encode('utf-8'), Token.encode('utf-8'), verif, data)
+    return struct.pack(f'Id32s32s12s{len(data)}s',opcode_mapping[operation], float(time.time()), Identity.encode('utf-8'), Token.encode('utf-8'), verif, data)
 
 def unpack(data):
     # Calculate package size
-    _s = struct.calcsize('id32s32s12s')
+    _s = struct.calcsize('Id32s32s12s')
     # Calculate jsondata size
     data_length = len(data)-_s
     if data_length<0:

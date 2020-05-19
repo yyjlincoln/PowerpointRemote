@@ -16,6 +16,8 @@ def init():
     logger.info('Initializing...')
     s = socket(AF_INET, SOCK_STREAM)
 
+    logger.log(f'Using pack version {pack.version}')
+
     logger.info(f'Connecting to the server: {server[0]} on port {str(server[1])}')
     s.connect(server)
 
