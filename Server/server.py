@@ -84,7 +84,7 @@ def parseData(sx, addr, data):
         if code==opcode:
             operation=op
     
-    if op=='register':
+    if operation=='register':
         keycollection(rand=jsondata['rand'], key=base64.b64encode(secrets.token_hex(32)).decode()).save()
         connection_send(sx, addr, pack.pack('success',{
             operation: 'register'
