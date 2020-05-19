@@ -34,17 +34,22 @@ def connection_handler():
 def connection_keep_recv(sx, addr):
     global deadConnection
     while sx not in deadConnection:
-        data = sx.recv(1024)
-        if data == b'':
-            terminate_connection(sx, addr)
-            logger.log('Exit thread', address=addr)
-            break
-
         try:
-            parseData(sx, addr, data)
-        except:
-            logger.handled_exception(
-                'Unable to parse data, dropped...', address=addr)
+            data = sx.recv(1024)
+            if data == b'':
+                terminate_connection(sx, addr)
+                logger.log('Exit thread', address=addr)
+                break
+
+            try:
+                parseData(sx, addr, data)
+            except:
+                logger.handled_exception(
+                    'Unable to parse data, dropped...', address=addr)
+        except socket.error:
+            terminate_connection(sx,addr)
+        except Exception as e:
+            logger.exception(e)
 
 
 def terminate_connection(sx, addr):
