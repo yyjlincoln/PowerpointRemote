@@ -94,4 +94,4 @@ def unpack_json(raw, key=None):
         actdata=json.loads(actdata.decode('utf-8'))
     except:
         actdata=None
-    return opcode, ts, identity.decode(), verif, encrypted, actdata
+    return opcode, ts, identity, verif, encrypted, actdata
