@@ -22,6 +22,8 @@ def connection_handler():
         sx, addr = s.accept()
 
         thd = threading.Thread(target=connection_keep_recv, args=(sx, addr))
+        thd.setDaemon(True)
+        thd.start()
 
 
 def connection_keep_recv(sx, addr):
