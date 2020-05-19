@@ -94,7 +94,8 @@ def parseData(sx, addr, data):
         key = base64.b64encode(_key).decode()
         keycollection(rand=json.loads(actdata)['rand'], key=_key).save()
         connection_send(sx,addr,pack.pack_json('success',{
-            'message':'Identity created'
+            'message':'Identity created',
+            'identity':secrets.token_hex(32)
         }, encrypted=True, key=_key))
 
 

@@ -21,7 +21,8 @@ opcode_mapping = {
     'previous':0x00000003,
     'success':0x00010000,
     'failed':0x00010001,
-    'warning':0x00010002
+    'warning':0x00010002,
+    'loggedin':0x00010009
 }
 
 class PackException(Exception):
@@ -82,5 +83,15 @@ def unpack(raw, key=None):
     elif encrypted and not key:
         logger.warn('The data is declated to be encrypted but no key is provided. Returning raw data.')
 
-    return opcode, ts, identity, verif, encrypted, actdata
+    return opcode, ts, identity.decode(), verif, encrypted, actdata
 
+def pack_json(operation, obj, encrypted=False, key=None):
+    return pack(operation, json.dumps(obj).encode('utf-8'), encrypted, key)
+
+def unpack_json(raw, key=None):
+    opcode, ts, identity, verif, encrypted, actdata = unpack(raw, key)
+    try:
+        actdata=json.loads(actdata.decode('utf-8'))
+    except:
+        actdata=None
+    return opcode, ts, identity.decode(), verif, encrypted, actdata
