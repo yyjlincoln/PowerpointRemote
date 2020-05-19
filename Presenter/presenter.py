@@ -59,7 +59,7 @@ def connection_send(sx, addr, data):
     except:
         raise
 
-def parseData(data):
+def parseData(sx,addr,data):
     opcode, ts, identity, verif, encrypted, actdata = pack.unpack_json(data, key=key)
 
     operation=None
