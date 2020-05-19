@@ -82,5 +82,5 @@ def unpack(raw, key=None):
     elif encrypted and not key:
         logger.warn('The data is declated to be encrypted but no key is provided. Returning raw data.')
 
-    return opcode, ts, identity, verif, actdata
+    return opcode, ts, identity, verif, encrypted, actdata
 

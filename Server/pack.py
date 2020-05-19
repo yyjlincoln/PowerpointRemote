@@ -82,5 +82,15 @@ def unpack(raw, key=None):
     elif encrypted and not key:
         logger.warn('The data is declated to be encrypted but no key is provided. Returning raw data.')
 
-    return opcode, ts, identity, verif, actdata
+    return opcode, ts, identity, verif, encrypted, actdata
 
+def pack_json(operation, obj, encrypted=False, key=None):
+    return pack(operation, json.dumps(obj).encode('utf-8'), encrypted, key)
+
+def unpack_json(raw, key=None):
+    opcode, ts, identity, verif, encrypted, actdata = unpack(raw, key)
+    try:
+        actdata=json.loads(actdata.decode('utf-8'))
+    except:
+        actdata=None
+    return opcode, ts, identity, verif, encrypted, actdata

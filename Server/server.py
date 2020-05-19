@@ -77,27 +77,27 @@ def connection_send(sx, addr, data):
 
 
 def parseData(sx, addr, data):
-    print(pack.unpack(data))
+    opcode, ts, identity, verif, encrypted, actdata = pack.unpack(data)
+    if encrypted:
+        query = session.query(identity=identity).first()
+        if query:
+            opcode, ts, identity, verif, encrypted, actdata = pack.unpack(data, key=query.key)
 
-
-
-
-    # if 'encrypted' in actdata:
-
-    # if time.time()-ts < 0:
-    #     connection_send(sx, addr, pack.pack('warning', {
-    #         'message': 'Check clock',
-    #         'type': '1'
-    #     }))
+    operation=None
+    for op, code in pack.opcode_mapping.items():
+        if code==opcode:
+            operation=op
     
-    # operation=None
-    # for op, code in pack.opcode_mapping.items():
-    #     if code==opcode:
-    #         operation=op
-    
-    # if operation=='register':
-    #     key = base64.b64encode(secrets.token_hex(32).encode()).decode()
-    #     keycollection(rand=actdata['rand'], key=key).save()
+    if operation=='register':
+        _key=secrets.token_hex(32).encode()
+        key = base64.b64encode(_key).decode()
+        keycollection(rand=actdata['rand'], key=key).save()
+        connection_send(sx,addr,pack.pack_json('success',{
+            'message':'Identity created'
+        }, encrypted=True, key=_key))
+
+
+
     #     connection_send(sx, addr, pack.pack('success',{
     #         'operation': 'register',
     #         'identity':identity
