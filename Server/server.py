@@ -8,6 +8,7 @@ import secrets
 import base64
 from Crypto.Cipher import AES
 import mongoengine
+import json
 
 server = ('0.0.0.0', 8085)
 
@@ -43,9 +44,9 @@ def connection_keep_recv(sx, addr):
 
             try:
                 parseData(sx, addr, data)
-            except:
+            except Exception as e:
                 logger.handled_exception(
-                    'Unable to parse data, dropped...', address=addr)
+                    'Unable to parse data, dropped...', address=addr, exception =e)
         except socket.error:
             terminate_connection(sx,addr)
         except Exception as e:
@@ -91,7 +92,7 @@ def parseData(sx, addr, data):
     if operation=='register':
         _key=secrets.token_hex(32).encode()
         key = base64.b64encode(_key).decode()
-        keycollection(rand=actdata['rand'], key=key).save()
+        keycollection(rand=json.loads(actdata)['rand'], key=_key).save()
         connection_send(sx,addr,pack.pack_json('success',{
             'message':'Identity created'
         }, encrypted=True, key=_key))
