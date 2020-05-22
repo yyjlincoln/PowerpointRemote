@@ -8,12 +8,16 @@ import json
 import threading
 import base64
 import time
+import keyboard
 
 
 server = ('mcsrv.icu',8085)
 keyserver = 'keyserver.premote.mcsrv.icu'
-key = ''
+key = b''
 readlock = False
+
+token = secrets.token_urlsafe(16)
+seq = 0
 
 deadConnection = []
 
@@ -65,16 +69,46 @@ def connection_send(sx, addr, data):
         raise
 
 def parseData(sx,addr,data):
+    global seq
     opcode, ts, identity, verif, encrypted, actdata = pack.unpack_json(data, key=key)
+
+    seq = seq + 1
 
     operation=None
     for op, code in pack.opcode_mapping.items():
         if code==opcode:
             operation=op
     
+    if not encrypted:
+        logger.warning('Data is not encrypted. This should not happen at all.')
     if operation=='loggedin':
         pack.set_identity(identity)
         logger.info(f'Set identity as {identity}')
+        logger.info('Sending token...')
+        connection_send(sx,addr,pack.pack_json('tokenexchange', {
+            'token':token
+        }, encrypted=True, key=key))
+    else:
+        if actdata['token']!=token:
+            connection_send(sx,addr,pack.pack_json('failed',{
+                'message':'Invalid Token'
+            }, encrypted=True, key=key))
+            return
+        if operation=='next':
+            keyboard.press_and_release('right arrow')
+            connection_send(sx,addr,pack.pack_json('success',{
+                'message':'OK'
+            }, encrypted=True, key=key))
+            return
+        elif operation=='previous':
+            keyboard.press_and_release('left arrow')
+            connection_send(sx,addr,pack.pack_json('success',{
+                'message':'OK'
+            }, encrypted=True, key=key))
+            return
+
+    
+    
     logger.info(opcode,ts,identity,verif,encrypted,actdata)
 
 def init():

@@ -22,6 +22,8 @@ opcode_mapping = {
     'success':0xF000,
     'failed':0xF001,
     'warning':0xF002,
+    'general':0xF003,
+    'tokenexchange':0xF004,
     'loggedin':0xF009
 }
 

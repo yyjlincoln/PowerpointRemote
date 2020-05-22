@@ -22,7 +22,7 @@ deadConnection = []
 
 def connection_handler():
     # connection handler
-    global s
+    global s, server
 
     while True:
         sx, addr = s.accept()
@@ -78,7 +78,7 @@ def connection_send(sx, addr, data):
 
 
 def parseData(sx, addr, data):
-    opcode, ts, identity, verif, encrypted, actdata = pack.unpack(data)
+    opcode, ts, identity, verif, encrypted, actdata = pack.unpack_json(data)
     if encrypted:
         query = session.query(identity=identity).first()
         if query:
@@ -93,11 +93,13 @@ def parseData(sx, addr, data):
         _key=secrets.token_hex(16).encode()
         key = base64.b64encode(_key).decode()
         identity = secrets.token_hex(16)
-        keycollection(rand=json.loads(actdata)['rand'], key=key).save()
+        keycollection(rand=actdata['rand'], key=key).save()
         connection_send(sx,addr,pack.pack_json('success',{
             'message':'Identity created',
             'identity': identity
         }, encrypted=True, key=_key))
+    elif operation=='tokenexchange':
+        session(identity = identity, token = actdata['token'], key = query.key).save()
 
 
 
